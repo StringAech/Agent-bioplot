@@ -98,3 +98,7 @@ renv/staging/
 *.bigBed
 *.bed.gz
 *.mtx.gz
+*.bam.bai
+# jupyter notebook checkpoints and temporary files
+*.ipynb_checkpoints
+*.ipynb
