@@ -3,6 +3,8 @@ import scanpy as sc
 import pandas as pd
 import math
 import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
+from pathlib import Path
 
 #%% define the function to check the data
 def inspect_data(adata: sc.AnnData) -> dict:
@@ -148,6 +150,7 @@ def umap_params(colors: str = 'leiden', point_size: float = 2) -> dict:
 #%% define the functio to plot the umap
 def plot_umap(adata: sc.AnnData, params: dict):
     """
+    Plot UMAP using scanpy's pl.umap function.
     """
 
     # Check if the parameters is a dictionary.
@@ -182,3 +185,54 @@ def plot_umap(adata: sc.AnnData, params: dict):
     plt.close(plot)
 
     return plot
+
+#%% define the function to save the plot
+def save_plot(fig: Figure, save_dir: Path, filename: str = 'umap', extension: str = 'png', dpi:int = 300) -> str:
+    """
+    Save the plot to a file.
+
+    Parameters
+    ----------
+    fig : Figure
+        The matplotlib figure to save.
+    save_dir : str
+        The directory to save the plot.
+    filename : str
+        The name of the file (without extension).
+    extension : str, optional
+        The file extension (default is 'png').
+    dpi : int, optional
+        The resolution in dots per inch (default is 300).
+
+    Returns
+    -------
+    str
+        The full path to the saved file.
+    """
+    # Check the dpi is a positive integer.
+    if not isinstance(dpi, int) or dpi <= 0:
+        raise ValueError("dpi must be a positive integer.")
+
+    # Check the fig is a matplotlib Figure.
+    if not isinstance(fig, Figure):
+        raise TypeError("fig must be a matplotlib Figure.")
+
+    # Check the extension is a string and is one of the supported formats.
+    supported_extensions = ['png', 'jpg', 'jpeg', 'pdf', 'svg']
+    if not isinstance(extension, str) or extension.lower() not in supported_extensions:
+        raise ValueError(f"extension must be one of {supported_extensions}.")
+    extension = extension.lower()
+
+    # Build the full file path and check the save_dir is exists, if not create it.
+    savedir_path = Path(save_dir)
+    if not savedir_path.exists():
+        savedir_path.mkdir(parents=True, exist_ok=True)
+    
+    if not isinstance(filename, str) or not filename.strip():
+        raise ValueError("filename must be a non-empty string.")
+    save_path = savedir_path / f"{filename}.{extension}"
+
+    # Save the figure to the specified file.
+    fig.savefig(save_path, dpi=dpi, bbox_inches='tight')
+
+    return str(save_path.absolute())
